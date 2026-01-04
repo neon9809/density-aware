@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>稠密感知快放算法</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .label-desc {
+            display: block;
+            font-weight: normal;
+            color: #999;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        .slider-value {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 50px;
+            text-align: right;
+            font-size: 16px;
+        }
+
+        .slider-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:not(:disabled):active {
+            transform: translateY(0);
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .loader p {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .download-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .error {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+            border-radius: 4px;
+            color: #c62828;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #333;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .slider-container {
+                gap: 10px;
+            }
+
+            .slider-value {
+                min-width: 40px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🎙️ 稠密感知快放算法</h1>
+        <p class="subtitle">智能识别语音密度，让快放更自然</p>
+    </div>
+
+    <div class="info-box">
+        <strong>💡 工作原理：</strong>本算法通过语音活动检测(VAD)识别音频中的语音密度，对高密度语音(重要内容)、低密度语音(停顿、语气词)和静音分别应用不同的变速系数，在提高播放效率的同时保持听感自然。
+    </div>
+
+    <form id="upload-form">
+        <div class="form-group">
+            <label for="audio-file">
+                📁 选择音频文件
+                <span class="label-desc">支持 MP3, WAV, FLAC, OGG 等格式</span>
+            </label>
+            <input type="file" id="audio-file" name="file" accept="audio/*" required>
+        </div>
+
+        <div class="form-group">
+            <label for="base-rate">
+                ⚡ 基准倍速
+                <span class="label-desc">整体播放速度目标</span>
+            </label>
+            <div class="slider-container">
+                <input type="range" id="base-rate" name="base_rate" min="1.0" max="3.0" step="0.1" value="1.8">
+                <span class="slider-value" id="base-rate-value">1.8x</span>
+            </div>
+            <div class="slider-info">
+                <span>1.0x (原速)</span>
+                <span>3.0x (最快)</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="high-density-factor">
+                🔤 高密度语音调节
+                <span class="label-desc">保留重要内容的清晰度 (越小越清晰)</span>
+            </label>
+            <div class="slider-container">
+                <input type="range" id="high-density-factor" name="high_density_factor" min="0.5" max="1.0" step="0.05" value="0.9">
+                <span class="slider-value" id="high-density-factor-value">0.9</span>
+            </div>
+            <div class="slider-info">
+                <span>0.5 (最清晰)</span>
+                <span>1.0 (最快)</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="low-density-factor">
+                💨 低密度语音调节
+                <span class="label-desc">压缩非核心语音 (越大压缩越多)</span>
+            </label>
+            <div class="slider-container">
+                <input type="range" id="low-density-factor" name="low_density_factor" min="1.0" max="2.0" step="0.1" value="1.2">
+                <span class="slider-value" id="low-density-factor-value">1.2</span>
+            </div>
+            <div class="slider-info">
+                <span>1.0 (不压缩)</span>
+                <span>2.0 (最多压缩)</span>
+            </div>
+        </div>
+
+        <button type="submit" id="submit-btn">🚀 开始处理</button>
+    </form>
+
+    <div class="error" id="error"></div>
+
+    <div class="loader" id="loader">
+        <p>⏳ 正在处理音频，请稍候...</p>
+        <p style="font-size: 12px; color: #999;">这可能需要一些时间，取决于音频长度</p>
+        <div class="spinner"></div>
+    </div>
+
+    <div class="result" id="result">
+        <h2>✅ 处理完成！</h2>
+        <audio id="result-audio" controls></audio>
+        <a id="download-link" class="download-link" href="#" download>⬇️ 下载结果</a>
+    </div>
+</div>
+
+<script>
+    // 更新滑块旁边的数值显示
+    const sliders = ['base-rate', 'high-density-factor', 'low-density-factor'];
+    sliders.forEach(id => {
+        const slider = document.getElementById(id);
+        const display = document.getElementById(`${id}-value`);
+        slider.addEventListener('input', () => {
+            display.textContent = id === 'base-rate' ? `${slider.value}x` : slider.value;
+        });
+    });
+
+    const form = document.getElementById('upload-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const loader = document.getElementById('loader');
+    const resultDiv = document.getElementById('result');
+    const resultAudio = document.getElementById('result-audio');
+    const downloadLink = document.getElementById('download-link');
+    const errorDiv = document.getElementById('error');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const fileInput = document.getElementById('audio-file');
+        
+        if (!fileInput.files.length) {
+            showError('请先选择一个音频文件！');
+            return;
+        }
+
+        // 清除之前的错误信息
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+
+        // 禁用按钮并显示加载动画
+        submitBtn.disabled = true;
+        submitBtn.textContent = '处理中...';
+        loader.style.display = 'block';
+        resultDiv.style.display = 'none';
+
+        try {
+            const response = await fetch('/process-audio/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                let errorMessage = `服务器错误: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.detail || errorMessage;
+                } catch (e) {
+                    // 无法解析JSON，使用默认错误信息
+                }
+                throw new Error(errorMessage);
+            }
+
+            // 获取返回的音频文件 blob
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            // 显示结果
+            resultAudio.src = audioUrl;
+            downloadLink.href = audioUrl;
+            
+            // 从响应头获取建议的文件名
+            const contentDisposition = response.headers.get('content-disposition');
+            let fileName = 'processed_audio.mp3';
+            if (contentDisposition) {
+                const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (fileNameMatch && fileNameMatch.length === 2)
+                    fileName = fileNameMatch[1];
+            }
+            downloadLink.download = fileName;
+            
+            resultDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error('处理失败:', error);
+            showError(`处理失败: ${error.message}`);
+        } finally {
+            // 恢复按钮和加载状态
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🚀 开始处理';
+            loader.style.display = 'none';
+        }
+    });
+
+    function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
