@@ -15,6 +15,8 @@ import os
 import uuid
 import asyncio
 from algorithm import intelligent_speed_up_v2
+from config import get_recommended_factors, PRESETS
+from analyzer import analyze_audio_characteristics
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -50,8 +52,9 @@ async def read_root():
 async def process_audio_endpoint(
     file: UploadFile = File(...),
     base_rate: float = Form(1.8),
-    high_density_factor: float = Form(0.9),
-    low_density_factor: float = Form(1.2)
+    high_density_factor: float = Form(None),
+    low_density_factor: float = Form(None),
+    use_recommended: bool = Form(True)
 ):
     """
     上传音频文件，应用"稠密感知快放算法"，并返回处理后的文件。
@@ -65,10 +68,20 @@ async def process_audio_endpoint(
     # 参数验证
     if not (1.0 <= base_rate <= 3.0):
         raise HTTPException(status_code=400, detail="base_rate 必须在 1.0 到 3.0 之间")
-    if not (0.5 <= high_density_factor <= 1.0):
-        raise HTTPException(status_code=400, detail="high_density_factor 必须在 0.5 到 1.0 之间")
-    if not (1.0 <= low_density_factor <= 2.0):
-        raise HTTPException(status_code=400, detail="low_density_factor 必须在 1.0 到 2.0 之间")
+    
+    # 如果用户选择使用推荐值或未提供因子，则自动计算
+    if use_recommended or high_density_factor is None or low_density_factor is None:
+        recommended = get_recommended_factors(base_rate)
+        high_density_factor = recommended['high_density_factor']
+        low_density_factor = recommended['low_density_factor']
+        print(f"使用推荐参数: {recommended['description']}")
+    else:
+        # 验证用户提供的自定义参数
+        if not (0.5 <= high_density_factor <= 1.0):
+            raise HTTPException(status_code=400, detail="high_density_factor 必须在 0.5 到 1.0 之间")
+        if not (1.0 <= low_density_factor <= 2.0):
+            raise HTTPException(status_code=400, detail="low_density_factor 必须在 1.0 到 2.0 之间")
+        print(f"使用自定义参数")
     
     # 为本次请求生成唯一ID
     request_id = str(uuid.uuid4())
@@ -126,6 +139,68 @@ async def process_audio_endpoint(
                 os.remove(input_path)
             except:
                 pass
+
+@app.get("/presets", tags=["Configuration"])
+async def get_presets():
+    """
+    获取预设配置方案
+    """
+    return PRESETS
+
+@app.get("/recommend", tags=["Configuration"])
+async def get_recommendation(base_rate: float = 1.8):
+    """
+    根据基准倍速获取推荐的参数配置（不考虑音频特征）
+    """
+    if not (1.0 <= base_rate <= 3.0):
+        raise HTTPException(status_code=400, detail="base_rate 必须在 1.0 到 3.0 之间")
+    return get_recommended_factors(base_rate)
+
+@app.post("/analyze-audio/", tags=["Configuration"])
+async def analyze_audio_endpoint(
+    file: UploadFile = File(...),
+    base_rate: float = Form(1.8)
+):
+    """
+    分析上传的音频文件，返回语音密度特征和推荐参数
+    
+    这个端点用于在用户展开高级选项或开始处理前进行预分析
+    """
+    if not (1.0 <= base_rate <= 3.0):
+        raise HTTPException(status_code=400, detail="base_rate 必须在 1.0 到 3.0 之间")
+    
+    # 生成唯一ID
+    request_id = str(uuid.uuid4())
+    input_filename = f"analyze_{request_id}_{file.filename}"
+    input_path = os.path.join(TEMP_DIR, input_filename)
+    
+    try:
+        # 保存上传的文件
+        with open(input_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # 分析音频特征
+        result = await asyncio.to_thread(
+            analyze_audio_characteristics,
+            input_path,
+            base_rate
+        )
+        
+        return result
+        
+    except Exception as e:
+        print(f"分析音频时出错: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"分析音频时发生错误: {str(e)}")
+    
+    finally:
+        # 清理临时文件
+        try:
+            if os.path.exists(input_path):
+                os.remove(input_path)
+        except:
+            pass
 
 @app.get("/health", tags=["Health"])
 async def health_check():

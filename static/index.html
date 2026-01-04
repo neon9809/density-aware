@@ -149,6 +149,127 @@
             margin-top: 6px;
         }
 
+        .recommendation {
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #667eea;
+            border-left: 3px solid #667eea;
+        }
+
+        .advanced-toggle {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .advanced-toggle button {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 5px 10px;
+        }
+
+        .advanced-toggle button:hover {
+            color: #764ba2;
+        }
+
+        .advanced-options {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+
+        .advanced-options.show {
+            display: block;
+        }
+
+        .advanced-options h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .analysis-progress {
+            display: none;
+            margin: 15px 0;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            border-radius: 4px;
+        }
+
+        .analysis-progress.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .analysis-result {
+            display: none;
+            margin: 15px 0;
+            padding: 15px;
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .analysis-result.show {
+            display: block;
+        }
+
+        .analysis-result h4 {
+            margin-bottom: 10px;
+            color: #155724;
+        }
+
+        .analysis-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #155724;
+        }
+
+        .param-modified {
+            background: #fff3cd !important;
+            border-left-color: #ffc107 !important;
+        }
+
+        .param-modified::before {
+            content: "⚠️ 自定义参数 - ";
+            font-weight: bold;
+        }
+
         button {
             width: 100%;
             padding: 16px;
@@ -269,6 +390,24 @@
             color: #333;
         }
 
+        .credit {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .credit a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .credit a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 25px;
@@ -298,7 +437,7 @@
     </div>
 
     <div class="info-box">
-        <strong>💡 工作原理：</strong>本算法通过语音活动检测(VAD)识别音频中的语音密度，对高密度语音(重要内容)、低密度语音(停顿、语气词)和静音分别应用不同的变速系数，在提高播放效率的同时保持听感自然。
+        <strong>💡 工作原理：</strong>本算法通过语音活动检测(VAD)分析音频的语音密度特征，对高密度语音(重要内容)、低密度语音(停顿、语气词)和静音分别应用不同的变速系数，在提高播放效率的同时保持听感自然。
     </div>
 
     <form id="upload-form">
@@ -312,8 +451,8 @@
 
         <div class="form-group">
             <label for="base-rate">
-                ⚡ 基准倍速
-                <span class="label-desc">整体播放速度目标</span>
+                ⚡ 设定播放倍速
+                <span class="label-desc">您只需要设置这一个参数，算法会根据音频特征自动优化其他参数</span>
             </label>
             <div class="slider-container">
                 <input type="range" id="base-rate" name="base_rate" min="1.0" max="3.0" step="0.1" value="1.8">
@@ -323,35 +462,68 @@
                 <span>1.0x (原速)</span>
                 <span>3.0x (最快)</span>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label for="high-density-factor">
-                🔤 高密度语音调节
-                <span class="label-desc">保留重要内容的清晰度 (越小越清晰)</span>
-            </label>
-            <div class="slider-container">
-                <input type="range" id="high-density-factor" name="high_density_factor" min="0.5" max="1.0" step="0.05" value="0.9">
-                <span class="slider-value" id="high-density-factor-value">0.9</span>
-            </div>
-            <div class="slider-info">
-                <span>0.5 (最清晰)</span>
-                <span>1.0 (最快)</span>
+            <div class="recommendation" id="recommendation">
+                📊 标准加速，推荐用于大多数场景
             </div>
         </div>
 
-        <div class="form-group">
-            <label for="low-density-factor">
-                💨 低密度语音调节
-                <span class="label-desc">压缩非核心语音 (越大压缩越多)</span>
-            </label>
-            <div class="slider-container">
-                <input type="range" id="low-density-factor" name="low_density_factor" min="1.0" max="2.0" step="0.1" value="1.2">
-                <span class="slider-value" id="low-density-factor-value">1.2</span>
+        <div class="advanced-toggle">
+            <button type="button" id="toggle-advanced">🔧 显示高级选项（可选）</button>
+        </div>
+
+        <div class="advanced-options" id="advanced-options">
+            <h3>⚙️ 高级参数调节</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                算法会根据您上传的音频特征自动推荐最优参数。如果您想微调效果，可以手动调整以下参数。
+            </p>
+            
+            <div class="analysis-progress" id="analysis-progress">
+                <p style="font-weight: 600; margin-bottom: 5px;">🔍 正在分析音频特征...</p>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
             </div>
-            <div class="slider-info">
-                <span>1.0 (不压缩)</span>
-                <span>2.0 (最多压缩)</span>
+
+            <div class="analysis-result" id="analysis-result">
+                <h4>✅ 音频分析完成</h4>
+                <div id="analysis-description"></div>
+                <div class="analysis-stats" id="analysis-stats"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="high-density-factor">
+                    🔤 高密度语音调节
+                    <span class="label-desc">保留重要内容的清晰度 (越小越清晰)</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="high-density-factor" name="high_density_factor" min="0.5" max="1.0" step="0.05" value="0.85">
+                    <span class="slider-value" id="high-density-factor-value">0.85</span>
+                </div>
+                <div class="slider-info">
+                    <span>0.5 (最清晰)</span>
+                    <span>1.0 (最快)</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="low-density-factor">
+                    💨 低密度语音调节
+                    <span class="label-desc">压缩非核心语音 (越大压缩越多)</span>
+                </label>
+                <div class="slider-container">
+                    <input type="range" id="low-density-factor" name="low_density_factor" min="1.0" max="2.0" step="0.1" value="1.3">
+                    <span class="slider-value" id="low-density-factor-value">1.3</span>
+                </div>
+                <div class="slider-info">
+                    <span>1.0 (不压缩)</span>
+                    <span>2.0 (最多压缩)</span>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button type="button" id="reset-to-recommended" style="width: auto; padding: 8px 16px; font-size: 14px; background: #999;">
+                    🔄 恢复推荐值
+                </button>
             </div>
         </div>
 
@@ -371,19 +543,200 @@
         <audio id="result-audio" controls></audio>
         <a id="download-link" class="download-link" href="#" download>⬇️ 下载结果</a>
     </div>
+
+    <div class="credit">
+        本项目代码由 <strong>Manus AI</strong> 完成 | 
+        <a href="https://github.com/neon9809/density-aware" target="_blank">GitHub</a>
+    </div>
 </div>
 
 <script>
-    // 更新滑块旁边的数值显示
-    const sliders = ['base-rate', 'high-density-factor', 'low-density-factor'];
-    sliders.forEach(id => {
-        const slider = document.getElementById(id);
-        const display = document.getElementById(`${id}-value`);
-        slider.addEventListener('input', () => {
-            display.textContent = id === 'base-rate' ? `${slider.value}x` : slider.value;
-        });
+    // 全局状态
+    let analyzedParams = null;  // 存储分析得到的推荐参数
+    let userModified = false;   // 用户是否手动修改了参数
+    let audioAnalyzed = false;  // 音频是否已分析
+
+    // DOM元素
+    const baseRateSlider = document.getElementById('base-rate');
+    const baseRateValue = document.getElementById('base-rate-value');
+    const recommendation = document.getElementById('recommendation');
+    const highDensitySlider = document.getElementById('high-density-factor');
+    const highDensityValue = document.getElementById('high-density-factor-value');
+    const lowDensitySlider = document.getElementById('low-density-factor');
+    const lowDensityValue = document.getElementById('low-density-factor-value');
+    const audioFileInput = document.getElementById('audio-file');
+    const advancedOptions = document.getElementById('advanced-options');
+    const analysisProgress = document.getElementById('analysis-progress');
+    const analysisResult = document.getElementById('analysis-result');
+
+    // 基准倍速改变时，更新显示
+    baseRateSlider.addEventListener('input', () => {
+        const rate = parseFloat(baseRateSlider.value);
+        baseRateValue.textContent = `${rate}x`;
+        
+        // 如果音频已分析，重新分析
+        if (audioAnalyzed && audioFileInput.files.length > 0) {
+            analyzeAudio();
+        }
     });
 
+    // 高级参数滑块更新
+    highDensitySlider.addEventListener('input', () => {
+        highDensityValue.textContent = highDensitySlider.value;
+        userModified = true;
+        updateRecommendationDisplay();
+    });
+
+    lowDensitySlider.addEventListener('input', () => {
+        lowDensityValue.textContent = lowDensitySlider.value;
+        userModified = true;
+        updateRecommendationDisplay();
+    });
+
+    // 切换高级选项显示
+    document.getElementById('toggle-advanced').addEventListener('click', () => {
+        const toggleBtn = document.getElementById('toggle-advanced');
+        
+        if (advancedOptions.classList.contains('show')) {
+            advancedOptions.classList.remove('show');
+            toggleBtn.textContent = '🔧 显示高级选项（可选）';
+        } else {
+            advancedOptions.classList.add('show');
+            toggleBtn.textContent = '🔧 隐藏高级选项';
+            
+            // 展开时，如果有音频文件且未分析，则开始分析
+            if (audioFileInput.files.length > 0 && !audioAnalyzed) {
+                analyzeAudio();
+            }
+        }
+    });
+
+    // 恢复推荐值
+    document.getElementById('reset-to-recommended').addEventListener('click', () => {
+        if (analyzedParams) {
+            highDensitySlider.value = analyzedParams.high_density_factor;
+            highDensityValue.textContent = analyzedParams.high_density_factor;
+            lowDensitySlider.value = analyzedParams.low_density_factor;
+            lowDensityValue.textContent = analyzedParams.low_density_factor;
+            userModified = false;
+            updateRecommendationDisplay();
+            alert('已恢复为推荐值！');
+        } else {
+            alert('请先上传音频文件进行分析！');
+        }
+    });
+
+    // 文件选择变化时，重置分析状态
+    audioFileInput.addEventListener('change', () => {
+        audioAnalyzed = false;
+        analyzedParams = null;
+        analysisResult.classList.remove('show');
+    });
+
+    // 分析音频
+    async function analyzeAudio() {
+        const fileInput = document.getElementById('audio-file');
+        
+        if (!fileInput.files.length) {
+            showError('请先选择一个音频文件！');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('base_rate', baseRateSlider.value);
+
+        // 显示进度条
+        analysisProgress.classList.add('show');
+        analysisResult.classList.remove('show');
+        document.getElementById('progress-bar-fill').style.width = '0%';
+
+        // 模拟进度
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 5;
+            if (progress <= 90) {
+                document.getElementById('progress-bar-fill').style.width = `${progress}%`;
+            }
+        }, 200);
+
+        try {
+            const response = await fetch('/analyze-audio/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            clearInterval(progressInterval);
+            document.getElementById('progress-bar-fill').style.width = '100%';
+
+            if (!response.ok) {
+                throw new Error(`分析失败: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // 保存分析结果
+                analyzedParams = result.recommendation;
+                audioAnalyzed = true;
+
+                // 如果用户没有手动修改，应用推荐参数
+                if (!userModified) {
+                    highDensitySlider.value = analyzedParams.high_density_factor;
+                    highDensityValue.textContent = analyzedParams.high_density_factor;
+                    lowDensitySlider.value = analyzedParams.low_density_factor;
+                    lowDensityValue.textContent = analyzedParams.low_density_factor;
+                }
+
+                // 显示分析结果
+                displayAnalysisResult(result);
+                updateRecommendationDisplay();
+            } else {
+                throw new Error(result.error || '分析失败');
+            }
+
+        } catch (error) {
+            console.error('分析失败:', error);
+            showError(`音频分析失败: ${error.message}`);
+        } finally {
+            setTimeout(() => {
+                analysisProgress.classList.remove('show');
+            }, 500);
+        }
+    }
+
+    // 显示分析结果
+    function displayAnalysisResult(result) {
+        const descDiv = document.getElementById('analysis-description');
+        const statsDiv = document.getElementById('analysis-stats');
+
+        descDiv.innerHTML = `<p style="margin-bottom: 10px;"><strong>${result.recommendation.description}</strong></p>`;
+
+        if (result.analysis) {
+            const analysis = result.analysis;
+            statsDiv.innerHTML = `
+                <div>📊 总时长: ${analysis.total_duration}秒</div>
+                <div>🔊 高密度语音: ${(analysis.high_density_ratio * 100).toFixed(1)}%</div>
+                <div>💬 低密度语音: ${(analysis.low_density_ratio * 100).toFixed(1)}%</div>
+                <div>🔇 静音: ${(analysis.silence_ratio * 100).toFixed(1)}%</div>
+            `;
+        }
+
+        analysisResult.classList.add('show');
+    }
+
+    // 更新推荐显示
+    function updateRecommendationDisplay() {
+        if (userModified) {
+            recommendation.classList.add('param-modified');
+            recommendation.textContent = '使用自定义参数';
+        } else if (analyzedParams) {
+            recommendation.classList.remove('param-modified');
+            recommendation.textContent = `📊 ${analyzedParams.description}`;
+        }
+    }
+
+    // 表单提交
     const form = document.getElementById('upload-form');
     const submitBtn = document.getElementById('submit-btn');
     const loader = document.getElementById('loader');
@@ -395,12 +748,36 @@
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(form);
         const fileInput = document.getElementById('audio-file');
         
         if (!fileInput.files.length) {
             showError('请先选择一个音频文件！');
             return;
+        }
+
+        // 如果音频未分析，先分析
+        if (!audioAnalyzed) {
+            try {
+                await analyzeAudio();
+            } catch (error) {
+                showError('音频分析失败，无法继续处理');
+                return;
+            }
+        }
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('base_rate', baseRateSlider.value);
+        
+        // 根据用户是否修改参数，决定是否使用推荐值
+        formData.append('use_recommended', !userModified);
+        
+        if (userModified) {
+            formData.append('high_density_factor', highDensitySlider.value);
+            formData.append('low_density_factor', lowDensitySlider.value);
+        } else if (analyzedParams) {
+            formData.append('high_density_factor', analyzedParams.high_density_factor);
+            formData.append('low_density_factor', analyzedParams.low_density_factor);
         }
 
         // 清除之前的错误信息
