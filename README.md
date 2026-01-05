@@ -10,6 +10,30 @@
 
 ---
 
+## 🆕 v2.0 新功能
+
+### 🔊 完整音频质量控制
+- **立体声支持**：保持原始声道数，不再强制转换为单声道
+- **采样率控制**：自定义输出采样率（如 44100Hz、48000Hz）
+- **位深控制**：支持 8/16/24/32 bit 位深
+- **格式选择**：WAV 无损输出或 MP3 有损压缩
+- **MP3 码率**：可选 128k/192k/256k/320k
+
+### 📍 严格相对位置模式
+专为短视频平台和剪辑软件集成设计：
+- 语音片段的相对位置严格按倍速缩放
+- 保持首尾静音的比例关系，确保与画面同步
+- 允许从静音"借用"时间优化语音听感
+- 适用于需要音画同步的视频快放场景
+
+### 🎨 全新 Web 界面
+- 上传后自动开始分析
+- 分析期间禁用处理按钮和高级选项
+- 处理按钮点击后变为进度条
+- 两种音质模式：快速预览 / 原文件音质
+
+---
+
 ## 🌟 为什么选择稠密感知快放？
 
 传统的音频倍速播放存在一个根本问题：**人说话快并不是整体快，必要的停顿仍然相似**。但整体快放后，停顿也被压缩了，导致听感不自然、理解困难。
@@ -256,6 +280,8 @@ curl -X POST "http://localhost:8000/process-audio/" \
   -F "file=@your_audio.mp3" \
   -F "base_rate=1.8" \
   -F "use_recommended=true" \
+  -F "strict_position=false" \
+  -F "quality_mode=preview" \
   -o output.mp3
 ```
 
@@ -265,8 +291,16 @@ curl -X POST "http://localhost:8000/process-audio/" \
 - `use_recommended`: 是否使用推荐参数，默认 true
 - `high_density_factor`: 高密度因子（仅当 use_recommended=false 时需要）
 - `low_density_factor`: 低密度因子（仅当 use_recommended=false 时需要）
+- `strict_position`: 是否启用严格相对位置模式，默认 false
+- `quality_mode`: 音质模式，"preview"（快速预览）或 "source"（原文件音质）
 
-**响应：** 处理后的音频文件（MP3格式）
+**高级音频质量参数（覆盖 quality_mode）：**
+- `sample_rate`: 采样率 (Hz)
+- `bit_depth`: 位深 (8, 16, 24, 32)
+- `output_format`: 输出格式 ("mp3", "wav", "flac", "ogg")
+- `mp3_bitrate`: MP3 码率 ("128k", "192k", "256k", "320k")
+
+**响应：** 处理后的音频文件
 
 ---
 
@@ -531,6 +565,23 @@ SOFTWARE.
 
 如有问题或建议，请在 GitHub 上提交 Issue：
 https://github.com/neon9809/density-aware/issues
+
+---
+
+## 📜 版本历史
+
+### v2.0.0 (2025-01-05)
+- 新增：完整立体声支持
+- 新增：音频质量精细控制（采样率、位深、格式、码率）
+- 新增：严格相对位置模式，支持视频同步场景
+- 新增：Web 界面重新设计，自动分析、进度显示
+- 优化：参数推荐策略，区分普通模式和严格模式
+
+### v1.0.0 (2024-12-xx)
+- 初始版本
+- 三级语音密度分类
+- 基于 Silero-VAD 的智能变速
+- Web 演示界面
 
 ---
 

@@ -38,7 +38,7 @@
 
         h1 {
             color: #667eea;
-            font-size: 32px;
+            font-size: 28px;
             margin-bottom: 10px;
         }
 
@@ -47,8 +47,19 @@
             font-size: 14px;
         }
 
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
         .form-group {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         label {
@@ -67,22 +78,53 @@
             margin-top: 2px;
         }
 
-        input[type="file"] {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+        /* 文件上传区域 */
+        .file-upload-area {
+            border: 2px dashed #e0e0e0;
             border-radius: 8px;
-            font-size: 14px;
+            padding: 30px;
+            text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            background: #fafafa;
         }
 
-        input[type="file"]:hover {
+        .file-upload-area:hover {
             border-color: #667eea;
-            background-color: #f8f9ff;
+            background: #f8f9ff;
         }
 
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-upload-area.has-file {
+            border-color: #4CAF50;
+            background: #f0fff0;
+        }
+
+        .file-upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .file-name {
+            color: #4CAF50;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* 滑块样式 */
         .slider-container {
             display: flex;
             align-items: center;
@@ -114,23 +156,11 @@
 
         input[type="range"]::-webkit-slider-thumb:hover {
             transform: scale(1.2);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
         }
 
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        input[type="range"]::-moz-range-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        input[type="range"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .slider-value {
@@ -149,128 +179,249 @@
             margin-top: 6px;
         }
 
-        .recommendation {
-            background: #f0f4ff;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 13px;
-            color: #667eea;
-            border-left: 3px solid #667eea;
-        }
-
-        .advanced-toggle {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .advanced-toggle button {
-            background: none;
-            border: none;
-            color: #667eea;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: underline;
-            padding: 5px 10px;
-        }
-
-        .advanced-toggle button:hover {
-            color: #764ba2;
-        }
-
-        .advanced-options {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background: #f9f9f9;
+        /* 分析状态区域 */
+        .analysis-status {
+            background: #f5f5f5;
             border-radius: 8px;
-            border: 1px dashed #ccc;
-        }
-
-        .advanced-options.show {
-            display: block;
-        }
-
-        .advanced-options h3 {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #667eea;
-        }
-
-        .analysis-progress {
-            display: none;
-            margin: 15px 0;
             padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-status.analyzing {
             background: #fff3cd;
             border-left: 3px solid #ffc107;
-            border-radius: 4px;
         }
 
-        .analysis-progress.show {
-            display: block;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s ease;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .analysis-result {
-            display: none;
-            margin: 15px 0;
-            padding: 15px;
+        .analysis-status.completed {
             background: #d4edda;
             border-left: 3px solid #28a745;
-            border-radius: 4px;
-            font-size: 13px;
         }
 
-        .analysis-result.show {
-            display: block;
+        .analysis-status.error {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
         }
 
-        .analysis-result h4 {
+        .analysis-status.waiting {
+            background: #e9ecef;
+            border-left: 3px solid #6c757d;
+        }
+
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             margin-bottom: 10px;
-            color: #155724;
+        }
+
+        .analysis-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffc107;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .analysis-details {
+            font-size: 13px;
+            color: #555;
         }
 
         .analysis-stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             margin-top: 10px;
             font-size: 12px;
-            color: #155724;
         }
 
-        .param-modified {
-            background: #fff3cd !important;
-            border-left-color: #ffc107 !important;
+        .stat-item {
+            background: rgba(255,255,255,0.7);
+            padding: 6px 10px;
+            border-radius: 4px;
         }
 
-        .param-modified::before {
-            content: "⚠️ 自定义参数 - ";
-            font-weight: bold;
+        .stat-label {
+            color: #666;
         }
 
-        button {
+        .stat-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* 高级选项区域 */
+        .advanced-section {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .advanced-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .advanced-section h3 {
+            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .waiting-hint {
+            font-size: 12px;
+            color: #999;
+            font-weight: normal;
+        }
+
+        .factor-group {
+            margin-bottom: 15px;
+        }
+
+        .factor-label {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .reset-btn {
+            background: none;
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .reset-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 输出音质选择 */
+        .quality-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .quality-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .quality-option:hover {
+            border-color: #667eea;
+        }
+
+        .quality-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .quality-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quality-option input {
+            display: none;
+        }
+
+        .quality-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .quality-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .quality-info {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* 严格相对位置选项 */
+        .checkbox-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-option:hover {
+            background: #f0f4ff;
+        }
+
+        .checkbox-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .checkbox-content {
+            flex: 1;
+        }
+
+        .checkbox-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .checkbox-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 处理按钮和进度条 */
+        .process-btn-container {
+            position: relative;
+            margin-top: 25px;
+        }
+
+        .process-btn {
             width: 100%;
             padding: 16px;
             font-size: 16px;
@@ -281,65 +432,99 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 20px;
         }
 
-        button:disabled {
+        .process-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             opacity: 0.6;
         }
 
-        button:not(:disabled):hover {
+        .process-btn:not(:disabled):hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
-        button:not(:disabled):active {
-            transform: translateY(0);
-        }
-
-        .loader {
+        .progress-container {
             display: none;
-            text-align: center;
-            margin-top: 30px;
+            width: 100%;
+            height: 50px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .loader p {
-            color: #667eea;
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
             font-weight: 600;
-            margin-bottom: 15px;
+            font-size: 14px;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+        .progress-bar.processing .progress-text {
+            color: white;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        /* 结果区域 */
         .result {
             display: none;
             margin-top: 30px;
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             background: #f0f4ff;
             border-radius: 8px;
             border-left: 4px solid #667eea;
         }
 
+        .result.show {
+            display: block;
+        }
+
         .result h2 {
             color: #667eea;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 18px;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .result-stat {
+            text-align: center;
+        }
+
+        .result-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .result-stat-label {
+            color: #666;
+            font-size: 12px;
         }
 
         audio {
@@ -362,9 +547,9 @@
         .download-link:hover {
             background-color: #45a049;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
         }
 
+        /* 错误提示 */
         .error {
             display: none;
             margin-top: 20px;
@@ -376,473 +561,559 @@
             font-size: 14px;
         }
 
-        .info-box {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #666;
-            line-height: 1.6;
+        .error.show {
+            display: block;
         }
 
-        .info-box strong {
-            color: #333;
-        }
-
-        .credit {
-            text-align: center;
+        /* 页脚 */
+        .footer {
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
+            text-align: center;
             font-size: 12px;
             color: #999;
         }
 
-        .credit a {
+        .footer a {
             color: #667eea;
             text-decoration: none;
         }
 
-        .credit a:hover {
+        .footer a:hover {
             text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .slider-container {
-                gap: 10px;
-            }
-
-            .slider-value {
-                min-width: 40px;
-                font-size: 14px;
-            }
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <h1>🎙️ 稠密感知快放算法</h1>
-        <p class="subtitle">智能识别语音密度，让快放更自然</p>
-    </div>
-
-    <div class="info-box">
-        <strong>💡 工作原理：</strong>本算法通过语音活动检测(VAD)分析音频的语音密度特征，对高密度语音(重要内容)、低密度语音(停顿、语气词)和静音分别应用不同的变速系数，在提高播放效率的同时保持听感自然。
-    </div>
-
-    <form id="upload-form">
-        <div class="form-group">
-            <label for="audio-file">
-                📁 选择音频文件
-                <span class="label-desc">支持 MP3, WAV, FLAC, OGG 等格式</span>
-            </label>
-            <input type="file" id="audio-file" name="file" accept="audio/*" required>
+    <div class="container">
+        <div class="header">
+            <h1>稠密感知快放算法 <span class="version-badge">v2.0</span></h1>
+            <p class="subtitle">智能识别语音密度，实现更高识别度的快放效果</p>
         </div>
 
-        <div class="form-group">
-            <label for="base-rate">
-                ⚡ 设定播放倍速
-                <span class="label-desc">您只需要设置这一个参数，算法会根据音频特征自动优化其他参数</span>
-            </label>
-            <div class="slider-container">
-                <input type="range" id="base-rate" name="base_rate" min="1.0" max="3.0" step="0.1" value="1.8">
-                <span class="slider-value" id="base-rate-value">1.8x</span>
-            </div>
-            <div class="slider-info">
-                <span>1.0x (原速)</span>
-                <span>3.0x (最快)</span>
-            </div>
-            <div class="recommendation" id="recommendation">
-                📊 标准加速，推荐用于大多数场景
-            </div>
-        </div>
-
-        <div class="advanced-toggle">
-            <button type="button" id="toggle-advanced">🔧 显示高级选项（可选）</button>
-        </div>
-
-        <div class="advanced-options" id="advanced-options">
-            <h3>⚙️ 高级参数调节</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                算法会根据您上传的音频特征自动推荐最优参数。如果您想微调效果，可以手动调整以下参数。
-            </p>
-            
-            <div class="analysis-progress" id="analysis-progress">
-                <p style="font-weight: 600; margin-bottom: 5px;">🔍 正在分析音频特征...</p>
-                <div class="progress-bar">
-                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
-                </div>
-            </div>
-
-            <div class="analysis-result" id="analysis-result">
-                <h4>✅ 音频分析完成</h4>
-                <div id="analysis-description"></div>
-                <div class="analysis-stats" id="analysis-stats"></div>
-            </div>
-            
+        <form id="uploadForm" enctype="multipart/form-data">
+            <!-- 文件上传 -->
             <div class="form-group">
-                <label for="high-density-factor">
-                    🔤 高密度语音调节
-                    <span class="label-desc">保留重要内容的清晰度 (越小越清晰)</span>
+                <label>
+                    上传音频文件
+                    <span class="label-desc">支持 MP3, WAV, FLAC, OGG 等格式</span>
+                </label>
+                <div class="file-upload-area" id="dropZone">
+                    <div class="file-upload-icon">📁</div>
+                    <div class="file-upload-text">点击选择文件或拖拽到此处</div>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+                <input type="file" id="audioFile" name="file" accept="audio/*" required>
+            </div>
+
+            <!-- 分析状态 -->
+            <div class="analysis-status waiting" id="analysisStatus">
+                <div class="analysis-header">
+                    <span class="analysis-title">等待上传文件</span>
+                </div>
+                <div class="analysis-details">上传音频文件后将自动开始分析</div>
+            </div>
+
+            <!-- 播放倍速 -->
+            <div class="form-group">
+                <label>
+                    设定播放倍速
+                    <span class="label-desc">整体播放速度目标</span>
                 </label>
                 <div class="slider-container">
-                    <input type="range" id="high-density-factor" name="high_density_factor" min="0.5" max="1.0" step="0.05" value="0.85">
-                    <span class="slider-value" id="high-density-factor-value">0.85</span>
+                    <input type="range" id="baseRate" name="base_rate" min="1.0" max="3.0" step="0.1" value="1.8">
+                    <span class="slider-value" id="baseRateValue">1.8x</span>
                 </div>
                 <div class="slider-info">
-                    <span>0.5 (最清晰)</span>
-                    <span>1.0 (最快)</span>
+                    <span>1.0x (原速)</span>
+                    <span>3.0x (极速)</span>
                 </div>
             </div>
 
+            <!-- 高级选项 -->
+            <div class="advanced-section disabled" id="advancedSection">
+                <h3>
+                    高级选项
+                    <span class="waiting-hint" id="waitingHint">（等待分析结果...）</span>
+                </h3>
+                
+                <div class="factor-group">
+                    <div class="factor-label">高密度因子 <span id="highFactorValue">0.85</span></div>
+                    <div class="slider-container">
+                        <input type="range" id="highDensityFactor" name="high_density_factor" min="0.5" max="1.0" step="0.01" value="0.85">
+                    </div>
+                    <div class="slider-info">
+                        <span>0.5 (更慢，保留细节)</span>
+                        <span>1.0 (按倍速)</span>
+                    </div>
+                </div>
+
+                <div class="factor-group">
+                    <div class="factor-label">低密度因子 <span id="lowFactorValue">1.3</span></div>
+                    <div class="slider-container">
+                        <input type="range" id="lowDensityFactor" name="low_density_factor" min="1.0" max="2.0" step="0.01" value="1.3">
+                    </div>
+                    <div class="slider-info">
+                        <span>1.0 (按倍速)</span>
+                        <span>2.0 (更快，压缩停顿)</span>
+                    </div>
+                </div>
+
+                <button type="button" class="reset-btn" id="resetBtn" disabled>恢复推荐值</button>
+            </div>
+
+            <!-- 输出音质 -->
             <div class="form-group">
-                <label for="low-density-factor">
-                    💨 低密度语音调节
-                    <span class="label-desc">压缩非核心语音 (越大压缩越多)</span>
+                <label>
+                    输出音质
+                    <span class="label-desc">选择输出文件的音质配置</span>
                 </label>
-                <div class="slider-container">
-                    <input type="range" id="low-density-factor" name="low_density_factor" min="1.0" max="2.0" step="0.1" value="1.3">
-                    <span class="slider-value" id="low-density-factor-value">1.3</span>
-                </div>
-                <div class="slider-info">
-                    <span>1.0 (不压缩)</span>
-                    <span>2.0 (最多压缩)</span>
+                <div class="quality-options">
+                    <label class="quality-option selected" id="previewOption">
+                        <input type="radio" name="quality_mode" value="preview" checked>
+                        <div class="quality-title">快速预览</div>
+                        <div class="quality-desc">16kHz MP3</div>
+                        <div class="quality-info">处理速度快，文件小</div>
+                    </label>
+                    <label class="quality-option disabled" id="sourceOption">
+                        <input type="radio" name="quality_mode" value="source" disabled>
+                        <div class="quality-title">原文件音质</div>
+                        <div class="quality-desc" id="sourceQualityDesc">等待分析...</div>
+                        <div class="quality-info">WAV 无损输出</div>
+                    </label>
                 </div>
             </div>
 
-            <div style="text-align: center; margin-top: 15px;">
-                <button type="button" id="reset-to-recommended" style="width: auto; padding: 8px 16px; font-size: 14px; background: #999;">
-                    🔄 恢复推荐值
+            <!-- 严格相对位置模式 -->
+            <div class="form-group">
+                <label class="checkbox-option disabled" id="strictPositionOption">
+                    <input type="checkbox" id="strictPosition" name="strict_position" disabled>
+                    <div class="checkbox-content">
+                        <div class="checkbox-title">严格相对位置模式</div>
+                        <div class="checkbox-desc">保持语音片段的精确相对位置，适用于需要与视频画面同步的场景（如短视频平台集成）</div>
+                    </div>
+                </label>
+            </div>
+
+            <!-- 处理按钮 -->
+            <div class="process-btn-container">
+                <button type="submit" class="process-btn" id="processBtn" disabled>
+                    请先上传音频文件
                 </button>
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar">
+                        <span class="progress-text" id="progressText">处理中...</span>
+                    </div>
+                </div>
             </div>
+        </form>
+
+        <!-- 错误提示 -->
+        <div class="error" id="errorBox"></div>
+
+        <!-- 结果区域 -->
+        <div class="result" id="resultBox">
+            <h2>🎉 处理完成！</h2>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <div class="result-stat-value" id="resultOriginalDuration">--</div>
+                    <div class="result-stat-label">原始时长</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value" id="resultOutputDuration">--</div>
+                    <div class="result-stat-label">输出时长</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-stat-value" id="resultActualSpeed">--</div>
+                    <div class="result-stat-label">实际倍速</div>
+                </div>
+            </div>
+            <audio id="audioPlayer" controls></audio>
+            <br>
+            <a href="#" class="download-link" id="downloadLink" download>下载处理后的音频</a>
         </div>
 
-        <button type="submit" id="submit-btn">🚀 开始处理</button>
-    </form>
-
-    <div class="error" id="error"></div>
-
-    <div class="loader" id="loader">
-        <p>⏳ 正在处理音频，请稍候...</p>
-        <p style="font-size: 12px; color: #999;">这可能需要一些时间，取决于音频长度</p>
-        <div class="spinner"></div>
+        <div class="footer">
+            <p>本项目代码由 <a href="https://manus.im" target="_blank">Manus AI</a> 完成</p>
+            <p><a href="https://github.com/neon9809/density-aware" target="_blank">GitHub</a> · <a href="/docs" target="_blank">API 文档</a></p>
+        </div>
     </div>
 
-    <div class="result" id="result">
-        <h2>✅ 处理完成！</h2>
-        <audio id="result-audio" controls></audio>
-        <a id="download-link" class="download-link" href="#" download>⬇️ 下载结果</a>
-    </div>
+    <script>
+        // 状态变量
+        let analysisResult = null;
+        let isAnalyzing = false;
+        let isProcessing = false;
+        let isCustomParams = false;
+        let audioBlob = null;
 
-    <div class="credit">
-        本项目代码由 <strong>Manus AI</strong> 完成 | 
-        <a href="https://github.com/neon9809/density-aware" target="_blank">GitHub</a>
-    </div>
-</div>
+        // DOM 元素
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('audioFile');
+        const fileName = document.getElementById('fileName');
+        const analysisStatus = document.getElementById('analysisStatus');
+        const advancedSection = document.getElementById('advancedSection');
+        const waitingHint = document.getElementById('waitingHint');
+        const baseRateSlider = document.getElementById('baseRate');
+        const baseRateValue = document.getElementById('baseRateValue');
+        const highFactorSlider = document.getElementById('highDensityFactor');
+        const highFactorValue = document.getElementById('highFactorValue');
+        const lowFactorSlider = document.getElementById('lowDensityFactor');
+        const lowFactorValue = document.getElementById('lowFactorValue');
+        const resetBtn = document.getElementById('resetBtn');
+        const previewOption = document.getElementById('previewOption');
+        const sourceOption = document.getElementById('sourceOption');
+        const sourceQualityDesc = document.getElementById('sourceQualityDesc');
+        const strictPositionOption = document.getElementById('strictPositionOption');
+        const strictPositionCheckbox = document.getElementById('strictPosition');
+        const processBtn = document.getElementById('processBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const errorBox = document.getElementById('errorBox');
+        const resultBox = document.getElementById('resultBox');
+        const uploadForm = document.getElementById('uploadForm');
 
-<script>
-    // 全局状态
-    let analyzedParams = null;  // 存储分析得到的推荐参数
-    let userModified = false;   // 用户是否手动修改了参数
-    let audioAnalyzed = false;  // 音频是否已分析
-
-    // DOM元素
-    const baseRateSlider = document.getElementById('base-rate');
-    const baseRateValue = document.getElementById('base-rate-value');
-    const recommendation = document.getElementById('recommendation');
-    const highDensitySlider = document.getElementById('high-density-factor');
-    const highDensityValue = document.getElementById('high-density-factor-value');
-    const lowDensitySlider = document.getElementById('low-density-factor');
-    const lowDensityValue = document.getElementById('low-density-factor-value');
-    const audioFileInput = document.getElementById('audio-file');
-    const advancedOptions = document.getElementById('advanced-options');
-    const analysisProgress = document.getElementById('analysis-progress');
-    const analysisResult = document.getElementById('analysis-result');
-
-    // 基准倍速改变时，更新显示
-    baseRateSlider.addEventListener('input', () => {
-        const rate = parseFloat(baseRateSlider.value);
-        baseRateValue.textContent = `${rate}x`;
+        // 文件拖拽处理
+        dropZone.addEventListener('click', () => fileInput.click());
         
-        // 如果音频已分析，重新分析
-        if (audioAnalyzed && audioFileInput.files.length > 0) {
-            analyzeAudio();
-        }
-    });
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
 
-    // 高级参数滑块更新
-    highDensitySlider.addEventListener('input', () => {
-        highDensityValue.textContent = highDensitySlider.value;
-        userModified = true;
-        updateRecommendationDisplay();
-    });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
 
-    lowDensitySlider.addEventListener('input', () => {
-        lowDensityValue.textContent = lowDensitySlider.value;
-        userModified = true;
-        updateRecommendationDisplay();
-    });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('audio/')) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
+            }
+        });
 
-    // 切换高级选项显示
-    document.getElementById('toggle-advanced').addEventListener('click', () => {
-        const toggleBtn = document.getElementById('toggle-advanced');
-        
-        if (advancedOptions.classList.contains('show')) {
-            advancedOptions.classList.remove('show');
-            toggleBtn.textContent = '🔧 显示高级选项（可选）';
-        } else {
-            advancedOptions.classList.add('show');
-            toggleBtn.textContent = '🔧 隐藏高级选项';
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        // 文件选择处理
+        function handleFileSelect(file) {
+            fileName.textContent = file.name;
+            dropZone.classList.add('has-file');
             
-            // 展开时，如果有音频文件且未分析，则开始分析
-            if (audioFileInput.files.length > 0 && !audioAnalyzed) {
-                analyzeAudio();
-            }
-        }
-    });
-
-    // 恢复推荐值
-    document.getElementById('reset-to-recommended').addEventListener('click', () => {
-        if (analyzedParams) {
-            highDensitySlider.value = analyzedParams.high_density_factor;
-            highDensityValue.textContent = analyzedParams.high_density_factor;
-            lowDensitySlider.value = analyzedParams.low_density_factor;
-            lowDensityValue.textContent = analyzedParams.low_density_factor;
-            userModified = false;
-            updateRecommendationDisplay();
-            alert('已恢复为推荐值！');
-        } else {
-            alert('请先上传音频文件进行分析！');
-        }
-    });
-
-    // 文件选择变化时，重置分析状态
-    audioFileInput.addEventListener('change', () => {
-        audioAnalyzed = false;
-        analyzedParams = null;
-        analysisResult.classList.remove('show');
-    });
-
-    // 分析音频
-    async function analyzeAudio() {
-        const fileInput = document.getElementById('audio-file');
-        
-        if (!fileInput.files.length) {
-            showError('请先选择一个音频文件！');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('base_rate', baseRateSlider.value);
-
-        // 显示进度条
-        analysisProgress.classList.add('show');
-        analysisResult.classList.remove('show');
-        document.getElementById('progress-bar-fill').style.width = '0%';
-
-        // 模拟进度
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += 5;
-            if (progress <= 90) {
-                document.getElementById('progress-bar-fill').style.width = `${progress}%`;
-            }
-        }, 200);
-
-        try {
-            const response = await fetch('/analyze-audio/', {
-                method: 'POST',
-                body: formData,
-            });
-
-            clearInterval(progressInterval);
-            document.getElementById('progress-bar-fill').style.width = '100%';
-
-            if (!response.ok) {
-                throw new Error(`分析失败: ${response.status}`);
-            }
-
-            const result = await response.json();
+            // 重置状态
+            analysisResult = null;
+            isCustomParams = false;
+            resultBox.classList.remove('show');
+            errorBox.classList.remove('show');
             
-            if (result.success) {
-                // 保存分析结果
-                analyzedParams = result.recommendation;
-                audioAnalyzed = true;
-
-                // 如果用户没有手动修改，应用推荐参数
-                if (!userModified) {
-                    highDensitySlider.value = analyzedParams.high_density_factor;
-                    highDensityValue.textContent = analyzedParams.high_density_factor;
-                    lowDensitySlider.value = analyzedParams.low_density_factor;
-                    lowDensityValue.textContent = analyzedParams.low_density_factor;
-                }
-
-                // 显示分析结果
-                displayAnalysisResult(result);
-                updateRecommendationDisplay();
-            } else {
-                throw new Error(result.error || '分析失败');
-            }
-
-        } catch (error) {
-            console.error('分析失败:', error);
-            showError(`音频分析失败: ${error.message}`);
-        } finally {
-            setTimeout(() => {
-                analysisProgress.classList.remove('show');
-            }, 500);
-        }
-    }
-
-    // 显示分析结果
-    function displayAnalysisResult(result) {
-        const descDiv = document.getElementById('analysis-description');
-        const statsDiv = document.getElementById('analysis-stats');
-
-        descDiv.innerHTML = `<p style="margin-bottom: 10px;"><strong>${result.recommendation.description}</strong></p>`;
-
-        if (result.analysis) {
-            const analysis = result.analysis;
-            statsDiv.innerHTML = `
-                <div>📊 总时长: ${analysis.total_duration}秒</div>
-                <div>🔊 高密度语音: ${(analysis.high_density_ratio * 100).toFixed(1)}%</div>
-                <div>💬 低密度语音: ${(analysis.low_density_ratio * 100).toFixed(1)}%</div>
-                <div>🔇 静音: ${(analysis.silence_ratio * 100).toFixed(1)}%</div>
-            `;
+            // 开始分析
+            startAnalysis(file);
         }
 
-        analysisResult.classList.add('show');
-    }
+        // 开始分析
+        async function startAnalysis(file) {
+            isAnalyzing = true;
+            updateAnalysisStatus('analyzing', '正在分析音频特征...', '这可能需要几秒钟');
+            disableAdvancedSection(true);
+            updateProcessButton();
 
-    // 更新推荐显示
-    function updateRecommendationDisplay() {
-        if (userModified) {
-            recommendation.classList.add('param-modified');
-            recommendation.textContent = '使用自定义参数';
-        } else if (analyzedParams) {
-            recommendation.classList.remove('param-modified');
-            recommendation.textContent = `📊 ${analyzedParams.description}`;
-        }
-    }
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('base_rate', baseRateSlider.value);
+            formData.append('strict_position', strictPositionCheckbox.checked);
 
-    // 表单提交
-    const form = document.getElementById('upload-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const loader = document.getElementById('loader');
-    const resultDiv = document.getElementById('result');
-    const resultAudio = document.getElementById('result-audio');
-    const downloadLink = document.getElementById('download-link');
-    const errorDiv = document.getElementById('error');
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const fileInput = document.getElementById('audio-file');
-        
-        if (!fileInput.files.length) {
-            showError('请先选择一个音频文件！');
-            return;
-        }
-
-        // 如果音频未分析，先分析
-        if (!audioAnalyzed) {
             try {
-                await analyzeAudio();
-            } catch (error) {
-                showError('音频分析失败，无法继续处理');
-                return;
-            }
-        }
+                const response = await fetch('/analyze-audio/', {
+                    method: 'POST',
+                    body: formData
+                });
 
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('base_rate', baseRateSlider.value);
-        
-        // 根据用户是否修改参数，决定是否使用推荐值
-        formData.append('use_recommended', !userModified);
-        
-        if (userModified) {
-            formData.append('high_density_factor', highDensitySlider.value);
-            formData.append('low_density_factor', lowDensitySlider.value);
-        } else if (analyzedParams) {
-            formData.append('high_density_factor', analyzedParams.high_density_factor);
-            formData.append('low_density_factor', analyzedParams.low_density_factor);
-        }
-
-        // 清除之前的错误信息
-        errorDiv.style.display = 'none';
-        errorDiv.textContent = '';
-
-        // 禁用按钮并显示加载动画
-        submitBtn.disabled = true;
-        submitBtn.textContent = '处理中...';
-        loader.style.display = 'block';
-        resultDiv.style.display = 'none';
-
-        try {
-            const response = await fetch('/process-audio/', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                let errorMessage = `服务器错误: ${response.status}`;
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.detail || errorMessage;
-                } catch (e) {
-                    // 无法解析JSON，使用默认错误信息
+                if (!response.ok) {
+                    throw new Error('分析失败');
                 }
-                throw new Error(errorMessage);
+
+                analysisResult = await response.json();
+                isAnalyzing = false;
+
+                if (analysisResult.success) {
+                    displayAnalysisResult(analysisResult);
+                    enableAdvancedSection();
+                    enableQualityOptions(analysisResult.audio_info);
+                    enableStrictPositionOption();
+                    applyRecommendedParams();
+                } else {
+                    updateAnalysisStatus('error', '分析失败', analysisResult.error || '请重试');
+                }
+            } catch (error) {
+                isAnalyzing = false;
+                updateAnalysisStatus('error', '分析失败', error.message);
             }
 
-            // 获取返回的音频文件 blob
-            const audioBlob = await response.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-
-            // 显示结果
-            resultAudio.src = audioUrl;
-            downloadLink.href = audioUrl;
-            
-            // 从响应头获取建议的文件名
-            const contentDisposition = response.headers.get('content-disposition');
-            let fileName = 'processed_audio.mp3';
-            if (contentDisposition) {
-                const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-                if (fileNameMatch && fileNameMatch.length === 2)
-                    fileName = fileNameMatch[1];
-            }
-            downloadLink.download = fileName;
-            
-            resultDiv.style.display = 'block';
-
-        } catch (error) {
-            console.error('处理失败:', error);
-            showError(`处理失败: ${error.message}`);
-        } finally {
-            // 恢复按钮和加载状态
-            submitBtn.disabled = false;
-            submitBtn.textContent = '🚀 开始处理';
-            loader.style.display = 'none';
+            updateProcessButton();
         }
-    });
 
-    function showError(message) {
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-    }
-</script>
+        // 更新分析状态显示
+        function updateAnalysisStatus(status, title, details) {
+            analysisStatus.className = 'analysis-status ' + status;
+            
+            let headerHtml = '';
+            if (status === 'analyzing') {
+                headerHtml = `<div class="analysis-spinner"></div><span class="analysis-title">${title}</span>`;
+            } else {
+                const icons = { completed: '✅', error: '❌', waiting: '⏳' };
+                headerHtml = `<span class="analysis-title">${icons[status] || ''} ${title}</span>`;
+            }
+            
+            analysisStatus.querySelector('.analysis-header').innerHTML = headerHtml;
+            analysisStatus.querySelector('.analysis-details').innerHTML = details;
+        }
 
+        // 显示分析结果
+        function displayAnalysisResult(result) {
+            const analysis = result.analysis;
+            const audioInfo = result.audio_info;
+            const recommendation = result.recommendation;
+
+            let detailsHtml = `<div>${recommendation.description}</div>`;
+            detailsHtml += `<div class="analysis-stats">`;
+            detailsHtml += `<div class="stat-item"><span class="stat-label">时长：</span><span class="stat-value">${analysis.total_duration}秒</span></div>`;
+            detailsHtml += `<div class="stat-item"><span class="stat-label">高密度语音：</span><span class="stat-value">${(analysis.high_density_ratio * 100).toFixed(1)}%</span></div>`;
+            detailsHtml += `<div class="stat-item"><span class="stat-label">低密度语音：</span><span class="stat-value">${(analysis.low_density_ratio * 100).toFixed(1)}%</span></div>`;
+            detailsHtml += `<div class="stat-item"><span class="stat-label">静音：</span><span class="stat-value">${(analysis.silence_ratio * 100).toFixed(1)}%</span></div>`;
+            detailsHtml += `</div>`;
+
+            updateAnalysisStatus('completed', '分析完成', detailsHtml);
+        }
+
+        // 禁用/启用高级选项区域
+        function disableAdvancedSection(disabled) {
+            advancedSection.classList.toggle('disabled', disabled);
+            waitingHint.style.display = disabled ? 'inline' : 'none';
+            highFactorSlider.disabled = disabled;
+            lowFactorSlider.disabled = disabled;
+            resetBtn.disabled = disabled;
+        }
+
+        function enableAdvancedSection() {
+            disableAdvancedSection(false);
+        }
+
+        // 启用音质选项
+        function enableQualityOptions(audioInfo) {
+            sourceOption.classList.remove('disabled');
+            sourceOption.querySelector('input').disabled = false;
+            
+            const formatMap = { mp3: 'MP3', wav: 'WAV', flac: 'FLAC', ogg: 'OGG' };
+            const format = formatMap[audioInfo.file_format] || audioInfo.file_format.toUpperCase();
+            sourceQualityDesc.textContent = `${audioInfo.sample_rate}Hz ${audioInfo.bit_depth}bit ${audioInfo.channels === 2 ? '立体声' : '单声道'}`;
+        }
+
+        // 启用严格相对位置选项
+        function enableStrictPositionOption() {
+            strictPositionOption.classList.remove('disabled');
+            strictPositionCheckbox.disabled = false;
+        }
+
+        // 应用推荐参数
+        function applyRecommendedParams() {
+            if (!analysisResult) return;
+            
+            const strictMode = strictPositionCheckbox.checked;
+            const recommendation = strictMode 
+                ? analysisResult.recommendations.strict_position 
+                : analysisResult.recommendations.normal;
+            
+            highFactorSlider.value = recommendation.high_density_factor;
+            lowFactorSlider.value = recommendation.low_density_factor;
+            highFactorValue.textContent = recommendation.high_density_factor;
+            lowFactorValue.textContent = recommendation.low_density_factor;
+            
+            isCustomParams = false;
+            resetBtn.disabled = true;
+        }
+
+        // 音质选项切换
+        document.querySelectorAll('.quality-option').forEach(option => {
+            option.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) return;
+                
+                document.querySelectorAll('.quality-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // 滑块事件
+        baseRateSlider.addEventListener('input', function() {
+            baseRateValue.textContent = this.value + 'x';
+            // 如果已有分析结果，重新获取推荐参数
+            if (analysisResult && !isCustomParams) {
+                // 简单地根据倍速调整推荐值
+                applyRecommendedParams();
+            }
+        });
+
+        highFactorSlider.addEventListener('input', function() {
+            highFactorValue.textContent = this.value;
+            markAsCustomParams();
+        });
+
+        lowFactorSlider.addEventListener('input', function() {
+            lowFactorValue.textContent = this.value;
+            markAsCustomParams();
+        });
+
+        function markAsCustomParams() {
+            isCustomParams = true;
+            resetBtn.disabled = false;
+        }
+
+        resetBtn.addEventListener('click', () => {
+            applyRecommendedParams();
+        });
+
+        // 严格相对位置模式切换
+        strictPositionCheckbox.addEventListener('change', () => {
+            if (analysisResult && !isCustomParams) {
+                applyRecommendedParams();
+            }
+        });
+
+        // 更新处理按钮状态
+        function updateProcessButton() {
+            if (isProcessing) {
+                processBtn.style.display = 'none';
+                progressContainer.classList.add('show');
+            } else {
+                processBtn.style.display = 'block';
+                progressContainer.classList.remove('show');
+                
+                if (!fileInput.files.length) {
+                    processBtn.disabled = true;
+                    processBtn.textContent = '请先上传音频文件';
+                } else if (isAnalyzing) {
+                    processBtn.disabled = true;
+                    processBtn.textContent = '正在分析音频...';
+                } else if (!analysisResult) {
+                    processBtn.disabled = true;
+                    processBtn.textContent = '等待分析完成';
+                } else {
+                    processBtn.disabled = false;
+                    processBtn.textContent = '开始处理';
+                }
+            }
+        }
+
+        // 更新进度条
+        function updateProgress(percent, text) {
+            progressBar.style.width = percent + '%';
+            progressText.textContent = text || `处理中 ${percent}%`;
+            
+            if (percent > 50) {
+                progressBar.classList.add('processing');
+            } else {
+                progressBar.classList.remove('processing');
+            }
+        }
+
+        // 表单提交
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!fileInput.files.length || !analysisResult) return;
+            
+            isProcessing = true;
+            updateProcessButton();
+            updateProgress(0, '准备处理...');
+            errorBox.classList.remove('show');
+            resultBox.classList.remove('show');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('base_rate', baseRateSlider.value);
+            formData.append('high_density_factor', highFactorSlider.value);
+            formData.append('low_density_factor', lowFactorSlider.value);
+            formData.append('use_recommended', !isCustomParams);
+            formData.append('strict_position', strictPositionCheckbox.checked);
+            formData.append('quality_mode', document.querySelector('input[name="quality_mode"]:checked').value);
+
+            // 模拟进度
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.random() * 10;
+                    updateProgress(Math.min(progress, 90), '处理中...');
+                }
+            }, 500);
+
+            try {
+                const response = await fetch('/process-audio/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || '处理失败');
+                }
+
+                updateProgress(100, '处理完成！');
+
+                // 获取处理后的音频
+                audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                // 从响应头获取文件名
+                const contentDisposition = response.headers.get('content-disposition');
+                let downloadFileName = 'processed_audio.mp3';
+                if (contentDisposition) {
+                    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (match) {
+                        downloadFileName = match[1].replace(/['"]/g, '');
+                    }
+                }
+
+                // 显示结果
+                setTimeout(() => {
+                    isProcessing = false;
+                    updateProcessButton();
+                    
+                    // 计算结果统计
+                    const originalDuration = analysisResult.analysis.total_duration;
+                    const outputDuration = originalDuration / parseFloat(baseRateSlider.value);
+                    const actualSpeed = originalDuration / outputDuration;
+                    
+                    document.getElementById('resultOriginalDuration').textContent = originalDuration.toFixed(1) + 's';
+                    document.getElementById('resultOutputDuration').textContent = outputDuration.toFixed(1) + 's';
+                    document.getElementById('resultActualSpeed').textContent = actualSpeed.toFixed(2) + 'x';
+                    
+                    document.getElementById('audioPlayer').src = audioUrl;
+                    document.getElementById('downloadLink').href = audioUrl;
+                    document.getElementById('downloadLink').download = downloadFileName;
+                    
+                    resultBox.classList.add('show');
+                }, 500);
+
+            } catch (error) {
+                clearInterval(progressInterval);
+                isProcessing = false;
+                updateProcessButton();
+                
+                errorBox.textContent = '处理失败: ' + error.message;
+                errorBox.classList.add('show');
+            }
+        });
+
+        // 初始化
+        updateProcessButton();
+    </script>
 </body>
 </html>

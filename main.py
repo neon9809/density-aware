@@ -14,7 +14,7 @@ import shutil
 import os
 import uuid
 import asyncio
-from algorithm import intelligent_speed_up_v2
+from algorithm import intelligent_speed_up_v3, AudioQualityConfig, get_audio_info
 from config import get_recommended_factors, PRESETS
 from analyzer import analyze_audio_characteristics
 
@@ -22,7 +22,7 @@ from analyzer import analyze_audio_characteristics
 app = FastAPI(
     title="稠密感知快放算法 API",
     description="一个智能的、语音密度感知的音频变速服务",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 # 创建用于存放临时文件的目录
@@ -48,13 +48,21 @@ async def read_root():
     except FileNotFoundError:
         return HTMLResponse(content="<h1>稠密感知快放算法 API</h1><p>欢迎使用！</p><p><a href='/docs'>查看API文档</a></p>")
 
+
 @app.post("/process-audio/")
 async def process_audio_endpoint(
     file: UploadFile = File(...),
     base_rate: float = Form(1.8),
     high_density_factor: float = Form(None),
     low_density_factor: float = Form(None),
-    use_recommended: bool = Form(True)
+    use_recommended: bool = Form(True),
+    strict_position: bool = Form(False),
+    quality_mode: str = Form("preview"),
+    # 高级音频质量参数（API 用户可用）
+    sample_rate: int = Form(None),
+    bit_depth: int = Form(None),
+    output_format: str = Form(None),
+    mp3_bitrate: str = Form(None)
 ):
     """
     上传音频文件，应用"稠密感知快放算法"，并返回处理后的文件。
@@ -63,25 +71,20 @@ async def process_audio_endpoint(
     - base_rate: 基准倍速（1.0-3.0），例如1.8表示1.8倍速
     - high_density_factor: 高密度语音调节因子（0.5-1.0），越小越慢，保留更多细节
     - low_density_factor: 低密度语音调节因子（1.0-2.0），越大越快，压缩非核心内容
+    - use_recommended: 是否使用推荐参数
+    - strict_position: 是否启用严格相对位置模式（适用于视频同步场景）
+    - quality_mode: 音质模式 ("preview" 快速预览, "source" 原文件音质)
+    
+    高级音频质量参数（可选，覆盖 quality_mode）：
+    - sample_rate: 采样率（Hz）
+    - bit_depth: 位深（8, 16, 24, 32）
+    - output_format: 输出格式 ("mp3", "wav", "flac", "ogg")
+    - mp3_bitrate: MP3 码率 ("128k", "192k", "256k", "320k")
     """
     
     # 参数验证
     if not (1.0 <= base_rate <= 3.0):
         raise HTTPException(status_code=400, detail="base_rate 必须在 1.0 到 3.0 之间")
-    
-    # 如果用户选择使用推荐值或未提供因子，则自动计算
-    if use_recommended or high_density_factor is None or low_density_factor is None:
-        recommended = get_recommended_factors(base_rate)
-        high_density_factor = recommended['high_density_factor']
-        low_density_factor = recommended['low_density_factor']
-        print(f"使用推荐参数: {recommended['description']}")
-    else:
-        # 验证用户提供的自定义参数
-        if not (0.5 <= high_density_factor <= 1.0):
-            raise HTTPException(status_code=400, detail="high_density_factor 必须在 0.5 到 1.0 之间")
-        if not (1.0 <= low_density_factor <= 2.0):
-            raise HTTPException(status_code=400, detail="low_density_factor 必须在 1.0 到 2.0 之间")
-        print(f"使用自定义参数")
     
     # 为本次请求生成唯一ID
     request_id = str(uuid.uuid4())
@@ -96,40 +99,93 @@ async def process_audio_endpoint(
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
+        # 确定音频质量配置
+        if any([sample_rate, bit_depth, output_format, mp3_bitrate]):
+            # 使用自定义高级参数
+            quality_config = AudioQualityConfig(
+                sample_rate=sample_rate,
+                bit_depth=bit_depth,
+                output_format=output_format or "mp3",
+                mp3_bitrate=mp3_bitrate or "192k",
+                preserve_channels=True
+            )
+            print(f"使用自定义音频质量配置: {quality_config}")
+        elif quality_mode == "source":
+            # 原文件音质模式
+            quality_config = AudioQualityConfig.from_source(input_path)
+            print(f"使用原文件音质配置: {quality_config}")
+        else:
+            # 快速预览模式
+            quality_config = AudioQualityConfig.quick_preview()
+            print(f"使用快速预览配置: {quality_config}")
+
+        # 如果用户选择使用推荐值或未提供因子，则自动计算
+        if use_recommended or high_density_factor is None or low_density_factor is None:
+            recommended = get_recommended_factors(base_rate, strict_position=strict_position)
+            high_density_factor = recommended['high_density_factor']
+            low_density_factor = recommended['low_density_factor']
+            print(f"使用推荐参数: {recommended['description']}")
+        else:
+            # 验证用户提供的自定义参数
+            if not (0.5 <= high_density_factor <= 1.0):
+                raise HTTPException(status_code=400, detail="high_density_factor 必须在 0.5 到 1.0 之间")
+            if not (1.0 <= low_density_factor <= 2.0):
+                raise HTTPException(status_code=400, detail="low_density_factor 必须在 1.0 到 2.0 之间")
+            print(f"使用自定义参数")
+
         print(f"\n{'='*60}")
         print(f"开始处理文件: {input_path}")
         print(f"参数: base_rate={base_rate}, high_density_factor={high_density_factor}, low_density_factor={low_density_factor}")
+        print(f"严格相对位置模式: {strict_position}")
         print(f"{'='*60}\n")
         
         # 调用核心算法进行处理 (在线程池中运行以避免阻塞)
         loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
+        result = await loop.run_in_executor(
             None,
-            intelligent_speed_up_v2,
-            input_path,
-            output_path,
-            base_rate,
-            high_density_factor,
-            low_density_factor
+            lambda: intelligent_speed_up_v3(
+                audio_path=input_path,
+                output_path=output_path,
+                base_rate=base_rate,
+                high_density_factor=high_density_factor,
+                low_density_factor=low_density_factor,
+                strict_position=strict_position,
+                quality_config=quality_config
+            )
         )
 
+        # 获取实际输出路径（可能因格式变化而改变）
+        actual_output_path = result['output_path']
+        
         # 检查输出文件是否存在
-        if not os.path.exists(output_path):
+        if not os.path.exists(actual_output_path):
             raise HTTPException(status_code=500, detail="算法处理失败，未能生成输出文件。")
 
-        print(f"处理完成，输出文件: {output_path}\n")
+        print(f"处理完成，输出文件: {actual_output_path}\n")
+
+        # 确定媒体类型
+        output_ext = os.path.splitext(actual_output_path)[1].lower()
+        media_types = {
+            '.mp3': 'audio/mpeg',
+            '.wav': 'audio/wav',
+            '.flac': 'audio/flac',
+            '.ogg': 'audio/ogg'
+        }
+        media_type = media_types.get(output_ext, 'audio/mpeg')
 
         # 返回处理后的文件
         return FileResponse(
-            path=output_path,
-            media_type='audio/mpeg',
-            filename=f"processed_{file.filename}"
+            path=actual_output_path,
+            media_type=media_type,
+            filename=f"processed_{os.path.splitext(file.filename)[0]}{output_ext}"
         )
 
     except HTTPException:
         raise
     except Exception as e:
         print(f"处理出错: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"处理音频时发生错误: {str(e)}")
     
     finally:
@@ -140,6 +196,7 @@ async def process_audio_endpoint(
             except:
                 pass
 
+
 @app.get("/presets", tags=["Configuration"])
 async def get_presets():
     """
@@ -147,24 +204,37 @@ async def get_presets():
     """
     return PRESETS
 
+
 @app.get("/recommend", tags=["Configuration"])
-async def get_recommendation(base_rate: float = 1.8):
+async def get_recommendation(base_rate: float = 1.8, strict_position: bool = False):
     """
     根据基准倍速获取推荐的参数配置（不考虑音频特征）
+    
+    Args:
+        base_rate: 基准倍速
+        strict_position: 是否为严格相对位置模式
     """
     if not (1.0 <= base_rate <= 3.0):
         raise HTTPException(status_code=400, detail="base_rate 必须在 1.0 到 3.0 之间")
-    return get_recommended_factors(base_rate)
+    return get_recommended_factors(base_rate, strict_position=strict_position)
+
 
 @app.post("/analyze-audio/", tags=["Configuration"])
 async def analyze_audio_endpoint(
     file: UploadFile = File(...),
-    base_rate: float = Form(1.8)
+    base_rate: float = Form(1.8),
+    strict_position: bool = Form(False)
 ):
     """
     分析上传的音频文件，返回语音密度特征和推荐参数
     
     这个端点用于在用户展开高级选项或开始处理前进行预分析
+    
+    返回内容包括：
+    - analysis: 语音密度分析结果
+    - audio_info: 音频文件信息（采样率、声道数、位深、格式）
+    - recommendation: 当前模式的推荐参数
+    - recommendations: 两种模式的推荐参数（normal 和 strict_position）
     """
     if not (1.0 <= base_rate <= 3.0):
         raise HTTPException(status_code=400, detail="base_rate 必须在 1.0 到 3.0 之间")
@@ -183,7 +253,8 @@ async def analyze_audio_endpoint(
         result = await asyncio.to_thread(
             analyze_audio_characteristics,
             input_path,
-            base_rate
+            base_rate,
+            strict_position
         )
         
         return result
@@ -202,12 +273,14 @@ async def analyze_audio_endpoint(
         except:
             pass
 
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """
     健康检查端点
     """
-    return {"status": "healthy", "service": "稠密感知快放算法 API"}
+    return {"status": "healthy", "service": "稠密感知快放算法 API", "version": "2.0.0"}
+
 
 # ==============================================================================
 # 启动应用
