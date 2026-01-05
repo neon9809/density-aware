@@ -506,6 +506,9 @@ def _process_audio_chunk(chunk: AudioSegment, speed: float) -> AudioSegment:
     """
     对单个音频片段进行变速处理，支持立体声
     
+    pyrubberband 期望输入是归一化的浮点数（-1.0 到 1.0），输出也是归一化的。
+    因此需要正确处理数据类型转换。
+    
     Args:
         chunk: 音频片段
         speed: 变速倍率
@@ -524,23 +527,28 @@ def _process_audio_chunk(chunk: AudioSegment, speed: float) -> AudioSegment:
     # 转换为 numpy 数组
     samples = np.array(chunk.get_array_of_samples())
     
-    # 确定数据类型
+    # 确定数据类型和最大值
     if sample_width == 1:
         dtype = np.int8
+        max_val = 127.0
     elif sample_width == 2:
         dtype = np.int16
+        max_val = 32767.0
     elif sample_width == 4:
         dtype = np.int32
+        max_val = 2147483647.0
     else:
         dtype = np.int16
+        max_val = 32767.0
     
-    samples = samples.astype(np.float64)
+    # 归一化到 -1.0 ~ 1.0 范围（pyrubberband 要求）
+    samples_normalized = samples.astype(np.float64) / max_val
     
     if channels == 2:
         # 立体声：分离左右声道
-        samples = samples.reshape((-1, 2))
-        left_channel = samples[:, 0]
-        right_channel = samples[:, 1]
+        samples_normalized = samples_normalized.reshape((-1, 2))
+        left_channel = samples_normalized[:, 0]
+        right_channel = samples_normalized[:, 1]
         
         # 分别处理每个声道
         left_stretched = pyrb.time_stretch(left_channel, frame_rate, speed)
@@ -552,13 +560,13 @@ def _process_audio_chunk(chunk: AudioSegment, speed: float) -> AudioSegment:
         right_stretched = right_stretched[:min_len]
         
         # 合并声道
-        processed_samples = np.column_stack((left_stretched, right_stretched)).flatten()
+        processed_normalized = np.column_stack((left_stretched, right_stretched)).flatten()
     else:
         # 单声道
-        processed_samples = pyrb.time_stretch(samples, frame_rate, speed)
+        processed_normalized = pyrb.time_stretch(samples_normalized, frame_rate, speed)
     
-    # 转换回整数类型
-    max_val = 2 ** (sample_width * 8 - 1) - 1
+    # 从归一化范围转换回整数范围
+    processed_samples = processed_normalized * max_val
     processed_samples = np.clip(processed_samples, -max_val, max_val).astype(dtype)
     
     # 创建新的音频片段

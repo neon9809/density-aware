@@ -1,0 +1,62 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#6366f1', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4f46e5', 'lineColor': '#94a3b8', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#e0e7ff'}}}%%
+flowchart TB
+    subgraph INPUT["📥 输入阶段"]
+        A[/"🎵 原始音频文件"/]
+        B["⚙️ 用户参数<br/>基准倍速 R<br/>高密度因子 α<br/>低密度因子 β"]
+    end
+
+    subgraph VAD["🎤 第一层: VAD 分析"]
+        C["Silero-VAD 模型"]
+        D["逐帧计算语音概率<br/>(32ms 窗口)"]
+        E[/"概率序列<br/>[0.1, 0.8, 0.9, 0.2, ...]"/]
+    end
+
+    subgraph SEGMENT["📊 第二层: 密度分级"]
+        F{"概率阈值判断"}
+        G["🔴 高密度语音<br/>prob > 0.7"]
+        H["🟡 低密度语音<br/>0.3 < prob ≤ 0.7"]
+        I["⚪ 静音<br/>prob ≤ 0.3"]
+        J[/"片段列表<br/>[{type, start, end}, ...]"/]
+    end
+
+    subgraph SPEED["⚡ 第三层: 速度计算 (普通模式)"]
+        K["计算语音速度<br/>v_h = R × α<br/>v_l = R × β"]
+        L["计算语音处理后时长<br/>T'_h = T_h / v_h<br/>T'_l = T_l / v_l"]
+        M["计算静音目标时长<br/>T'_s = T_target - T'_h - T'_l"]
+        N["反推静音速度<br/>v_s = T_s / T'_s"]
+        O{{"💡 核心特点:<br/>静音被大幅压缩<br/>为语音腾出时间"}}
+    end
+
+    subgraph PROCESS["🔧 第四层: 音频处理"]
+        P["遍历每个片段"]
+        Q["切割音频块 Chunk"]
+        R["归一化 int → float<br/>(-32768~32767) → (-1~1)"]
+        S["pyrubberband 变速<br/>(WSOLA 算法)"]
+        T["反归一化 float → int"]
+        U["拼接所有片段"]
+    end
+
+    subgraph OUTPUT["📤 输出阶段"]
+        V["应用质量配置<br/>(采样率/位深/格式)"]
+        W[/"🎵 输出音频文件"/]
+    end
+
+    A --> C
+    B --> K
+    C --> D --> E
+    E --> F
+    F --> G & H & I
+    G & H & I --> J
+    J --> K
+    K --> L --> M --> N
+    N --> O
+    O --> P
+    P --> Q --> R --> S --> T --> U
+    U --> V --> W
+
+    style A fill:#6366f1,stroke:#4f46e5,color:#fff
+    style W fill:#10b981,stroke:#059669,color:#fff
+    style O fill:#fbbf24,stroke:#f59e0b,color:#000
+    style G fill:#ef4444,stroke:#dc2626,color:#fff
+    style H fill:#f59e0b,stroke:#d97706,color:#fff
+    style I fill:#94a3b8,stroke:#64748b,color:#fff
