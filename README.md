@@ -139,6 +139,16 @@
 
 ## 🚀 快速开始
 
+### 方式 0: 云平台一键部署 (最简单)
+
+无需本地环境，直接在云平台上部署：
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new?templateUrl=https%3A%2F%2Fgithub.com%2Fneon9809%2Fdensity-aware)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/neon9809/density-aware)
+
+> 💡 **提示**：Railway 和 Render 都提供免费额度，适合测试和学习。部署后会自动获得一个公网 URL。
+
 ### 方式 1: Docker (推荐)
 
 最简单的方式是使用 Docker 镜像：
@@ -150,7 +160,7 @@ docker run -d \
   ghcr.io/neon9809/density-aware:latest
 ```
 
-然后在浏览器中打开 `http://localhost:8000`
+然后在浏览器中访问 `http://localhost:8000`
 
 ### 方式 2: 本地部署
 
@@ -304,6 +314,20 @@ curl -X POST "http://localhost:8000/process-audio/" \
 
 ---
 
+## 🎵 音频样本试听
+
+下面是使用本算法处理的实际效果比较：
+
+| 类型 | 描述 | 文件 |
+| :--- | :--- | :--- |
+| **原始音频** | 豆包生成的原始音频（约 2 分钟） | [example.mp3](examples/example.mp3) |
+| **普通模式** | 不启用严格相对位置，优先保留语音清晰度 | [example-non-strict.wav](examples/example-non-strict.wav) |
+| **严格相对位置模式** | 启用严格相对位置，保持音画同步 | [example-strict.wav](examples/example-strict.wav) |
+
+> 💭 **比较建议**：下载三个文件到本地，使用你的音乐播放器或剪辑软件打开，对比听感。
+
+---
+
 ## 🎯 使用场景
 
 ### 📚 有声书和播客
@@ -432,10 +456,9 @@ density-aware/
 ├── temp_files/           # 临时文件目录（运行时创建）
 └── README.md             # 项目文档
 ```
-
 ---
 
-## 🐛 故障排除
+## 🐛 故障排查除
 
 ### 问题：处理失败，显示 "No module named 'packaging'"
 **解决方案：** 安装缺失的依赖

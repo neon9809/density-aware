@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: density-aware
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 8000
+    healthCheckPath: /health
+    healthCheckInterval: 30
+    maxShutdownDelaySeconds: 30
